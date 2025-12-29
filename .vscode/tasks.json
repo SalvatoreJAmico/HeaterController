@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Android: build + install + launch",
+			"type": "shell",
+			"command": "$adb = \"C:\\Users\\samic\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\"; $emu = \"C:\\Users\\samic\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe\"; & $adb start-server; $devs = (& $adb devices | Select-String \"\\tdevice$\"); if (-not $devs) { $avd = (& $emu -list-avds | Select-Object -First 1); if ($avd) { Start-Process -FilePath $emu -ArgumentList \"-avd\",$avd; & $adb wait-for-device; $limit = [DateTime]::UtcNow.AddMinutes(3); do { $boot = (& $adb shell getprop sys.boot_completed) -join \"\"; if ($boot.Trim() -eq \"1\") { break }; Start-Sleep -Seconds 2 } while ([DateTime]::UtcNow -lt $limit) } }; .\\gradlew.bat :app:assembleDebug; & $adb install -r \"app\\build\\outputs\\apk\\debug\\app-debug.apk\"; & $adb shell am start -n com.salvatore.heatercontroller/.MainActivity",
+			"group": "build"
+		},
+		{
+			"label": "Android: build+install+launch (PowerShell)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$ErrorActionPreference = 'Stop'; $adb = \"$Env:LOCALAPPDATA\\Android\\Sdk\\platform-tools\\adb.exe\"; $emu = \"$Env:LOCALAPPDATA\\Android\\Sdk\\emulator\\emulator.exe\"; & $adb start-server; $devs = (& $adb devices | Select-String \"`tdevice$\"); if (-not $devs) { $avd = (& $emu -list-avds | Select-Object -First 1); if ($avd) { Start-Process -FilePath $emu -ArgumentList \"-avd\",$avd | Out-Null; & $adb wait-for-device; $limit = [DateTime]::UtcNow.AddMinutes(3); do { $boot = (& $adb shell getprop sys.boot_completed) -join \"\"; if ($boot.Trim() -eq \"1\") { break }; Start-Sleep -Seconds 2 } while ([DateTime]::UtcNow -lt $limit) } }; .\\gradlew.bat :app:assembleDebug; & $adb install -r \"app\\build\\outputs\\apk\\debug\\app-debug.apk\"; & $adb shell am start -n com.salvatore.heatercontroller/.MainActivity"
+			],
+			"problemMatcher": [
+				"$gradle"
+			],
+			"group": "build"
+		}
+	]
+}
